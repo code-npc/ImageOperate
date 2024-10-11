@@ -1,8 +1,4 @@
-﻿
-// ImageOperate.h: PROJECT_NAME 应用程序的主头文件
-//
-
-#pragma once
+﻿#pragma once
 
 #ifndef __AFXWIN_H__
 	#error "在包含此文件之前包含 'pch.h' 以生成 PCH"
@@ -15,10 +11,10 @@
 // 有关此类的实现，请参阅 ImageOperate.cpp
 //
 
-class CImageOperateApp : public CWinApp
+class ImageOperateApp : public CWinApp
 {
 public:
-	CImageOperateApp();
+	ImageOperateApp();
 
 // 重写
 public:
@@ -29,4 +25,4 @@ public:
 	DECLARE_MESSAGE_MAP()
 };
 
-extern CImageOperateApp theApp;
+extern ImageOperateApp theApp;

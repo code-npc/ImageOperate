@@ -1,37 +1,16 @@
-﻿
-// ImageOperateDlg.cpp: 实现文件
-//
-
-#include "pch.h"
+﻿#include "pch.h"
 #include "framework.h"
 #include "ImageOperate.h"
 #include "ImageOperateDlg.h"
 #include "afxdialogex.h"
-//#include "resource.h"
+#include "resource.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 
-BEGIN_MESSAGE_MAP(CImageOperateDlg, CDialogEx)
-	ON_BN_CLICKED(IDC_BTN_OPEN, &CImageOperateDlg::OnBnClickedOpenImage)
-	ON_BN_CLICKED(IDC_BTN_SAVE, &CImageOperateDlg::OnBnClickedSaveImage)
-	ON_BN_CLICKED(IDC_BTN_ZOOM_IN, &CImageOperateDlg::OnBnClickedZoomIn)
-	ON_BN_CLICKED(IDC_BTN_ZOOM_OUT, &CImageOperateDlg::OnBnClickedZoomOut)
-	ON_BN_CLICKED(IDC_BTN_ROTATE, &CImageOperateDlg::OnBnClickedRotate)
-	ON_BN_CLICKED(IDC_BTN_FLIP_H, &CImageOperateDlg::OnBnClickedFlipH)
-	ON_BN_CLICKED(IDC_BTN_FLIP_V, &CImageOperateDlg::OnBnClickedFlipV)
-END_MESSAGE_MAP()
-
-
-CImageOperateDlg::CImageOperateDlg(CWnd* pParent /*=nullptr*/)
-	: CDialogEx(IDD_IMAGEOPERATE_DIALOG, pParent)
-{
-}
-
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
-
 class CAboutDlg : public CDialogEx
 {
 public:
@@ -62,13 +41,9 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
-
 // CImageOperateDlg 对话框
 
-
-
-CImageOperateDlg::CImageOperateDlg(CWnd* pParent /*=nullptr*/)
-	: CDialogEx(IDD_IMAGEOPERATE_DIALOG, pParent)
+CImageOperateDlg::CImageOperateDlg(CWnd* pParent /*=nullptr*/): CDialogEx(IDD_IMAGEOPERATE_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -77,17 +52,6 @@ void CImageOperateDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 }
-
-BEGIN_MESSAGE_MAP(CImageOperateDlg, CDialogEx)
-	ON_WM_SYSCOMMAND()
-	ON_WM_PAINT()
-	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BUTTON1, &CImageOperateDlg::OnBnClickedButton1)
-	ON_BN_CLICKED(IDC_BUTTON2, &CImageOperateDlg::OnBnClickedButton2)
-END_MESSAGE_MAP()
-
-
-// CImageOperateDlg 消息处理程序
 
 BOOL CImageOperateDlg::OnInitDialog()
 {
@@ -175,16 +139,62 @@ HCURSOR CImageOperateDlg::OnQueryDragIcon()
 
 
 
+BEGIN_MESSAGE_MAP(CImageOperateDlg, CDialogEx)
+	ON_BN_CLICKED(IDC_BTN_OPEN, &CImageOperateDlg::OnBnClickedOpenImage)
+	ON_BN_CLICKED(IDC_BTN_SAVE, &CImageOperateDlg::OnBnClickedSaveImage)
+	ON_BN_CLICKED(IDC_BTN_ZOOM_IN, &CImageOperateDlg::OnBnClickedZoomIn)
+	ON_BN_CLICKED(IDC_BTN_ZOOM_OUT, &CImageOperateDlg::OnBnClickedZoomOut)
+	ON_BN_CLICKED(IDC_BTN_ROTATE, &CImageOperateDlg::OnBnClickedRotate)
+	ON_BN_CLICKED(IDC_BTN_FLIP_H, &CImageOperateDlg::OnBnClickedFlipH)
+	ON_BN_CLICKED(IDC_BTN_FLIP_V, &CImageOperateDlg::OnBnClickedFlipV)
+END_MESSAGE_MAP()
+
+
 void CImageOperateDlg::OnBnClickedOpenImage()
 {
 	// 使用 CFileDialog 打开图像
-	CFileDialog dlg(TRUE);
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_FILEMUSTEXIST, _T("图片文件 (*.jpg; *.png; *.bmp)|*.jpg; *.png; *.bmp||"));
 	if (dlg.DoModal() == IDOK)
 	{
 		m_strImagePath = dlg.GetPathName();
-		m_imgProcessor.LoadImage(m_strImagePath);  // 加载图像
+		//m_imgProcessor.LoadImage(m_strImagePath); 
+		// 加载图像
+		if (!m_imgProcessor.LoadImage(m_strImagePath))
+		{
+			AfxMessageBox(_T("无法打开图像文件"));
+			return;
+		}
 		// 将图像显示在控件上
-		// ...
+		
+		// 获取图像数据
+		cv::Mat image = m_imgProcessor.GetCurrentImage();
+
+		// 将图片转换为适合显示的格式（BGR to RGB）
+		cv::Mat rgbImage;
+		cv::cvtColor(image, rgbImage, cv::COLOR_BGR2RGB);
+
+		// 显示图像的代码
+		CImage cimage;
+		cimage.Create(rgbImage.cols, rgbImage.rows, 24);
+
+		for (int y = 0; y < rgbImage.rows; ++y)
+		{
+			uchar* pSrc = rgbImage.ptr<uchar>(y);
+			uchar* pDst = (uchar*)cimage.GetPixelAddress(0, y);
+			memcpy(pDst, pSrc, rgbImage.cols * 3);
+		}
+
+		// 获取静态控件的矩形区域，调整图片大小
+		CRect rect;
+		GetDlgItem(IDC_STATIC)->GetClientRect(&rect);
+
+		// 缩放图片以适应控件大小
+		CDC* pDC = GetDC();
+		HDC hDC = pDC->m_hDC;
+		cimage.StretchBlt(hDC, 0, 0, rect.Width(), rect.Height(), 0, 0, rgbImage.cols, rgbImage.rows, SRCCOPY);
+
+		// 释放设备上下文
+		ReleaseDC(pDC);
 	}
 }
 
@@ -195,16 +205,28 @@ void CImageOperateDlg::OnBnClickedZoomIn()
 	// ...
 }
 
-
-
-
-void CImageOperateDlg::OnBnClickedButton1()
+void CImageOperateDlg::OnBnClickedSaveImage()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
 
-
-void CImageOperateDlg::OnBnClickedButton2()
+void CImageOperateDlg::OnBnClickedZoomOut()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }
+
+void CImageOperateDlg::OnBnClickedRotate()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+void CImageOperateDlg::OnBnClickedFlipH()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+void CImageOperateDlg::OnBnClickedFlipV()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
