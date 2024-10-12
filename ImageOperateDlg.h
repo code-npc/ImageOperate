@@ -22,7 +22,7 @@ protected:
 
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
-	afx_msg void OnPaint();
+
 	afx_msg HCURSOR OnQueryDragIcon();
 
 	// 消息映射声明
@@ -31,9 +31,10 @@ protected:
 
 
 protected:
-	CImageProcessor m_imgProcessor;   // 图像处理对象
-	CStatic m_imageControl;           // 图片显示控件
-	CString m_strImagePath;           // 当前加载的图像路径
+	ImageProcessor image_processor;   // 图像处理对象
+	CStatic image_ontrol;           // 图片显示控件
+	CString image_path;           // 当前加载的图像路径
+	void display();
 public:
 	afx_msg void OnBnClickedOpenImage();  // 打开图片按钮事件
 	afx_msg void OnBnClickedSaveImage();  // 保存图片按钮事件
@@ -42,5 +43,5 @@ public:
 	afx_msg void OnBnClickedRotate();     // 旋转按钮事件
 	afx_msg void OnBnClickedFlipH();      // 水平翻转
 	afx_msg void OnBnClickedFlipV();      // 垂直翻转
-
+	afx_msg void OnPaint();
 };

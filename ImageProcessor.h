@@ -2,19 +2,23 @@
 #include <opencv.hpp>
 
 
-class CImageProcessor
+class ImageProcessor
 {
 public:
-    CImageProcessor();
-    bool LoadImage(CString filePath);  // ¼ÓÔØÍ¼Ïñ
+    ImageProcessor();
+    bool OpenImage(CString filePath);  // ¼ÓÔØÍ¼Ïñ
     void ScaleImage(double scaleFactor);      // Ëõ·ÅÍ¼Ïñ
     void RotateImage(double angle);           // Ðý×ªÍ¼Ïñ
     void FlipImage(bool horizontal, bool vertical);  // ·­×ªÍ¼Ïñ
     bool SaveImage(CString filePath);  // ±£´æÍ¼Ïñ
 
+
+
     cv::Mat GetCurrentImage() const;
 
+    operator bool();
+
 private:
-    cv::Mat m_currentImage;  // µ±Ç°Í¼Ïñ
+    cv::Mat CurrentImage;  // µ±Ç°Í¼Ïñ
 };
 

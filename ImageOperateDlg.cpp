@@ -3,7 +3,6 @@
 #include "ImageOperate.h"
 #include "ImageOperateDlg.h"
 #include "afxdialogex.h"
-#include "resource.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -105,30 +104,7 @@ void CImageOperateDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  来绘制该图标。  对于使用文档/视图模型的 MFC 应用程序，
 //  这将由框架自动完成。
 
-void CImageOperateDlg::OnPaint()
-{
-	if (IsIconic())
-	{
-		CPaintDC dc(this); // 用于绘制的设备上下文
 
-		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
-
-		// 使图标在工作区矩形中居中
-		int cxIcon = GetSystemMetrics(SM_CXICON);
-		int cyIcon = GetSystemMetrics(SM_CYICON);
-		CRect rect;
-		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
-
-		// 绘制图标
-		dc.DrawIcon(x, y, m_hIcon);
-	}
-	else
-	{
-		CDialogEx::OnPaint();
-	}
-}
 
 //当用户拖动最小化窗口时系统调用此函数取得光标
 //显示。
@@ -147,60 +123,71 @@ BEGIN_MESSAGE_MAP(CImageOperateDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_ROTATE, &CImageOperateDlg::OnBnClickedRotate)
 	ON_BN_CLICKED(IDC_BTN_FLIP_H, &CImageOperateDlg::OnBnClickedFlipH)
 	ON_BN_CLICKED(IDC_BTN_FLIP_V, &CImageOperateDlg::OnBnClickedFlipV)
+	ON_WM_PAINT()
 END_MESSAGE_MAP()
 
+void CImageOperateDlg::display()
+{
+	// 将图像显示在控件上
+		// 获取图像数据
+	cv::Mat image = image_processor.GetCurrentImage();
+
+	// 将图片转换为适合显示的格式（BGR to RGB）
+	// cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+
+	// 显示图像的代码
+	CImage cimage;
+	cimage.Create(image.cols, image.rows, 24);
+
+	for (int y = 0; y < image.rows; ++y)
+	{
+		uchar* pSrc = image.ptr<uchar>(y);
+		uchar* pDst = (uchar*)cimage.GetPixelAddress(0, y);
+		memcpy(pDst, pSrc, image.cols * 3);
+
+		//for (int i = 0; i < image.cols; i += 3,pDst += 3) {
+		//	std::swap(pDst[i], pDst[i + 2]);
+		//}
+	}
+
+	// 获取静态控件的矩形区域，调整图片大小
+	CRect rect;
+	GetDlgItem(IDC_IMAGE1)->GetClientRect(&rect);
+	////获取控件相对于屏幕的位置
+	GetDlgItem(IDC_IMAGE1)->GetWindowRect(&rect);
+	//转化为对话框上的相对位置
+	ScreenToClient(rect);
+
+
+	// 缩放图片以适应控件大小
+	CDC* pDC = GetDC();
+	HDC hDC = pDC->m_hDC;
+	cimage.StretchBlt(hDC, rect.left, rect.top, rect.Width(), rect.Height(), 0, 0, image.cols, image.rows, SRCCOPY);
+
+	// 释放设备上下文
+	ReleaseDC(pDC);
+}
 
 void CImageOperateDlg::OnBnClickedOpenImage()
 {
 	// 使用 CFileDialog 打开图像
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_FILEMUSTEXIST, _T("图片文件 (*.jpg; *.png; *.bmp)|*.jpg; *.png; *.bmp||"));
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_FILEMUSTEXIST, _T("图片文件 (*.jpg; *.png; *.bmp; *.webp)|*.jpg; *.png; *.bmp; *.webp||"));
 	if (dlg.DoModal() == IDOK)
 	{
-		m_strImagePath = dlg.GetPathName();
-		//m_imgProcessor.LoadImage(m_strImagePath); 
+		image_path = dlg.GetPathName();
 		// 加载图像
-		if (!m_imgProcessor.LoadImage(m_strImagePath))
+		if (!image_processor.OpenImage(image_path))
 		{
 			AfxMessageBox(_T("无法打开图像文件"));
 			return;
 		}
-		// 将图像显示在控件上
-		
-		// 获取图像数据
-		cv::Mat image = m_imgProcessor.GetCurrentImage();
-
-		// 将图片转换为适合显示的格式（BGR to RGB）
-		cv::Mat rgbImage;
-		cv::cvtColor(image, rgbImage, cv::COLOR_BGR2RGB);
-
-		// 显示图像的代码
-		CImage cimage;
-		cimage.Create(rgbImage.cols, rgbImage.rows, 24);
-
-		for (int y = 0; y < rgbImage.rows; ++y)
-		{
-			uchar* pSrc = rgbImage.ptr<uchar>(y);
-			uchar* pDst = (uchar*)cimage.GetPixelAddress(0, y);
-			memcpy(pDst, pSrc, rgbImage.cols * 3);
-		}
-
-		// 获取静态控件的矩形区域，调整图片大小
-		CRect rect;
-		GetDlgItem(IDC_STATIC)->GetClientRect(&rect);
-
-		// 缩放图片以适应控件大小
-		CDC* pDC = GetDC();
-		HDC hDC = pDC->m_hDC;
-		cimage.StretchBlt(hDC, 0, 0, rect.Width(), rect.Height(), 0, 0, rgbImage.cols, rgbImage.rows, SRCCOPY);
-
-		// 释放设备上下文
-		ReleaseDC(pDC);
+		display();
 	}
 }
 
 void CImageOperateDlg::OnBnClickedZoomIn()
 {
-	m_imgProcessor.ScaleImage(1.2);  // 放大 1.2 倍
+	image_processor.ScaleImage(1.2);  // 放大 1.2 倍
 	// 显示放大后的图像
 	// ...
 }
@@ -230,3 +217,32 @@ void CImageOperateDlg::OnBnClickedFlipV()
 	// TODO: 在此添加控件通知处理程序代码
 }
 
+
+
+
+void CImageOperateDlg::OnPaint()
+{
+	if (IsIconic())
+	{
+		CPaintDC dc(this); // 用于绘制的设备上下文
+
+		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
+
+		// 使图标在工作区矩形中居中
+		int cxIcon = GetSystemMetrics(SM_CXICON);
+		int cyIcon = GetSystemMetrics(SM_CYICON);
+		CRect rect;
+		GetClientRect(&rect);
+		int x = (rect.Width() - cxIcon + 1) / 2;
+		int y = (rect.Height() - cyIcon + 1) / 2;
+
+		// 绘制图标
+		dc.DrawIcon(x, y, m_hIcon);
+	}
+	else
+	{
+		CDialogEx::OnPaint();
+	}
+	if (image_processor)
+		display();
+}

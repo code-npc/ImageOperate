@@ -2,18 +2,18 @@
 #include "ImageProcessor.h"
 
 
-CImageProcessor::CImageProcessor()
+ImageProcessor::ImageProcessor()
 {
 }
 
-bool CImageProcessor::LoadImage(CString filePath)
+bool ImageProcessor::OpenImage(CString filePath)
 {
     // 使用 OpenCV 加载图像
-    m_currentImage = cv::imread(filePath.GetBuffer(), cv::IMREAD_COLOR);
-    return !m_currentImage.empty(); // 如果图像读取成功，返回 true
+    CurrentImage = cv::imread(filePath.GetBuffer());
+    return !CurrentImage.empty(); // 如果图像读取成功，返回 true
 }
 
-void CImageProcessor::ScaleImage(double scaleFactor)
+void ImageProcessor::ScaleImage(double scaleFactor)
 {
    /* if (!m_currentImage.empty())
     {
@@ -21,7 +21,7 @@ void CImageProcessor::ScaleImage(double scaleFactor)
     }*/
 }
 
-void CImageProcessor::RotateImage(double angle)
+void ImageProcessor::RotateImage(double angle)
 {
     /*if (!m_currentImage.empty())
     {
@@ -31,7 +31,7 @@ void CImageProcessor::RotateImage(double angle)
     }*/
 }
 
-void CImageProcessor::FlipImage(bool horizontal, bool vertical)
+void ImageProcessor::FlipImage(bool horizontal, bool vertical)
 {
   /*  int flipCode = 0;
     if (horizontal && vertical)
@@ -44,12 +44,16 @@ void CImageProcessor::FlipImage(bool horizontal, bool vertical)
     cv::flip(m_currentImage, m_currentImage, flipCode);*/
 }
 
-bool CImageProcessor::SaveImage(CString filePath)
+bool ImageProcessor::SaveImage(CString filePath)
 {
-    return cv::imwrite(filePath.GetBuffer(), m_currentImage);
+    return cv::imwrite(filePath.GetBuffer(), CurrentImage);
 }
 
-cv::Mat CImageProcessor::GetCurrentImage() const
+cv::Mat ImageProcessor::GetCurrentImage() const
 {
-    return m_currentImage;
+    return CurrentImage;
+}
+
+ImageProcessor::operator bool() {
+    return !CurrentImage.empty();
 }
