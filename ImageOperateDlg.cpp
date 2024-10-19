@@ -84,18 +84,11 @@ BOOL CImageOperateDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 
 
-
-	auto [origin_handle, result_handle] = image_processor.GetHandle();
-	HWND hParent = ::GetParent(origin_handle);
-	::SetParent(origin_handle, GetDlgItem(IDC_IMAGE1)->m_hWnd);
+	auto image_handle = image_processor.GetHandle();
+	HWND hParent = ::GetParent(image_handle);
+	::SetParent(image_handle, GetDlgItem(IDC_IMAGE)->m_hWnd);
 	::ShowWindow(hParent, SW_HIDE);
-	::ShowWindow(origin_handle, SW_SHOW);
-
-	hParent = ::GetParent(result_handle);
-	::SetParent(result_handle, GetDlgItem(IDC_IMAGE2)->m_hWnd);
-	::ShowWindow(hParent, SW_HIDE);
-	::ShowWindow(result_handle, SW_SHOW);
-
+	::ShowWindow(image_handle, SW_SHOW);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -136,7 +129,14 @@ BEGIN_MESSAGE_MAP(CImageOperateDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_ROTATE, &CImageOperateDlg::OnBnClickedRotate)
 	ON_BN_CLICKED(IDC_BTN_FLIP_H, &CImageOperateDlg::OnBnClickedFlipH)
 	ON_BN_CLICKED(IDC_BTN_FLIP_V, &CImageOperateDlg::OnBnClickedFlipV)
+	ON_BN_CLICKED(IDC_RESET, &CImageOperateDlg::OnBnClickedReset)
 	ON_WM_PAINT()
+	ON_BN_CLICKED(IDC_TOGRAY, &CImageOperateDlg::OnBnClickedTogray)
+	ON_BN_CLICKED(IDC_SHARPEN, &CImageOperateDlg::OnBnClickedSharpen)
+	ON_BN_CLICKED(IDC_MOPI, &CImageOperateDlg::OnBnClickedMopi)
+	ON_BN_CLICKED(IDC_CONTRAST, &CImageOperateDlg::OnBnClickedContrast)
+	ON_BN_CLICKED(IDC_BRIGHTNESS, &CImageOperateDlg::OnBnClickedBrightness)
+	ON_BN_CLICKED(IDC_BLUR, &CImageOperateDlg::OnBnClickedBlur)
 END_MESSAGE_MAP()
 
 void CImageOperateDlg::OnPaint()
@@ -167,13 +167,13 @@ void CImageOperateDlg::OnPaint()
 	
 	Display();
 	
-		
 }
+
 
 void CImageOperateDlg::Display()
 {
-	cv::imshow("OriginalImageWindow", image_processor.CurrentImage);
-	cv::imshow("ResultImageWindow", image_processor.TargetImage);
+	cv::imshow("ImageWindow", image_processor.CurrentImage);
+
 }
 
 
@@ -216,10 +216,8 @@ void CImageOperateDlg::OnBnClickedSaveImage()
 
 void CImageOperateDlg::OnBnClickedZoomIn()
 {
-	cv::Mat zoomedImage = image_processor.ScaleImage(1.2);  // 放大 1.2 倍
+	image_processor.ScaleImage(1.2);  // 放大 1.2 倍
 	// 显示放大后的图像
-	image_processor.TargetImage = zoomedImage;
-	image_processor.TempImage = image_processor.TargetImage;
 	Display();
 	
 }
@@ -227,38 +225,72 @@ void CImageOperateDlg::OnBnClickedZoomIn()
 void CImageOperateDlg::OnBnClickedZoomOut()
 {
 	// TODO: 缩小图片
-	cv::Mat zoomedImage = image_processor.ScaleImage(0.8);
-	image_processor.TargetImage = zoomedImage;
-	image_processor.TempImage = image_processor.TargetImage;
+	image_processor.ScaleImage(0.8);
 	Display();
-
 }
 
 void CImageOperateDlg::OnBnClickedRotate()
 {
 	// TODO: 旋转图片
-	cv::Mat rotatedImage = image_processor.RotateImage(45);
-	image_processor.TargetImage = rotatedImage;
-	image_processor.TempImage = image_processor.TargetImage;
+	image_processor.RotateImage(45);
 	Display();
 }
 
 void CImageOperateDlg::OnBnClickedFlipH()
 {
 	// TODO: 水平反转图像
-	cv::Mat flippedImage = image_processor.FlipImage(true, false);
-	image_processor.TargetImage = flippedImage;
-	image_processor.TempImage = image_processor.TargetImage;
+	image_processor.FlipImage(true, false);
 	Display();
 }
 
 void CImageOperateDlg::OnBnClickedFlipV()
 {
 	// TODO: 垂直反转图像
-	cv::Mat flippedImage = image_processor.FlipImage(false, true);
-	image_processor.TargetImage = flippedImage;
-	image_processor.TempImage = image_processor.TargetImage;
+	image_processor.FlipImage(false, true);
+	Display();
+}
+
+void CImageOperateDlg::OnBnClickedReset()
+{
+	image_processor.CurrentImage = image_processor.TempImage.clone();
+	image_processor.TempImage.copyTo(image_processor.CurrentImage);
 	Display();
 }
 
 
+void CImageOperateDlg::OnBnClickedTogray()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	cv::cvtColor(image_processor.CurrentImage, image_processor.CurrentImage, cv::COLOR_BGR2GRAY);
+	Display();
+}
+
+
+void CImageOperateDlg::OnBnClickedSharpen()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CImageOperateDlg::OnBnClickedMopi()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CImageOperateDlg::OnBnClickedContrast()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CImageOperateDlg::OnBnClickedBrightness()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CImageOperateDlg::OnBnClickedBlur()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}

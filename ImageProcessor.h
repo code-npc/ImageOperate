@@ -5,8 +5,7 @@
 class ImageProcessor {
 
     cv::Mat CurrentImage;  // 当前图像
-    cv::Mat TargetImage;  // 处理后的图像
-    cv::Mat TempImage;  // 临时用的图像，实现多次图片变换
+    cv::Mat TempImage;  // 用来记录原图
 
 public:
     friend class CImageOperateDlg;
@@ -22,10 +21,9 @@ public:
 
 
     cv::Mat GetCurrentImage() const;
-    cv::Mat GetTargetImage() const;
     cv::Mat GetTempImage() const;
 
-    std::tuple<HWND, HWND> GetHandle() const ;
+    HWND GetHandle() const ;
 
     operator bool();
     

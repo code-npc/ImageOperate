@@ -4,39 +4,37 @@
 
 ImageProcessor::ImageProcessor()
 {
-    cv::namedWindow("OriginalImageWindow");
-    auto _1 = (HWND)cvGetWindowHandle("OriginalImageWindow");
+    cv::namedWindow("ImageWindow");
+    auto _1 = (HWND)cvGetWindowHandle("ImageWindow");
     ShowWindow(_1, 0);
-    cv::namedWindow("ResultImageWindow");
-    auto _2 = (HWND)cvGetWindowHandle("ResultImageWindow");
-    ShowWindow(_2, 0);
 }
 
 bool ImageProcessor::OpenImage(CString filePath)
 {
     // 使用 OpenCV 加载图像
     CurrentImage = cv::imread(filePath.GetBuffer());
-    TempImage = TargetImage = CurrentImage;
+    TempImage = CurrentImage.clone();
+    CurrentImage.copyTo(TempImage);
     return !CurrentImage.empty(); // 如果图像读取成功，返回 true
 }
 
 cv::Mat ImageProcessor::ScaleImage(double scaleFactor)
 {
-    if (!TempImage.empty())
+    if (!CurrentImage.empty())
     {
-        cv::resize(TempImage, TargetImage, cv::Size(), scaleFactor, scaleFactor);
-        return TargetImage;
+        cv::resize(CurrentImage, CurrentImage, cv::Size(), scaleFactor, scaleFactor);
+        return CurrentImage;
     }
 }
 
 cv::Mat ImageProcessor::RotateImage(double angle)
 {
-    if (!TempImage.empty())
+    if (!CurrentImage.empty())
     {
-        cv::Point2f center(TempImage.cols / 2.0f, TempImage.rows / 2.0f);
+        cv::Point2f center(CurrentImage.cols / 2.0f, CurrentImage.rows / 2.0f);
         cv::Mat rotMat = cv::getRotationMatrix2D(center, angle, 1.0);
-        cv::warpAffine(TempImage, TargetImage, rotMat, TempImage.size());
-        return TargetImage;
+        cv::warpAffine(CurrentImage, CurrentImage, rotMat, CurrentImage.size());
+        return CurrentImage;
     }
 }
 
@@ -47,23 +45,18 @@ cv::Mat ImageProcessor::FlipImage(bool horizontal, bool vertical)
     else if (horizontal) flipCode = 1;
     else if (vertical) flipCode = 0;
 
-    cv::flip(TempImage, TargetImage, flipCode);
-    return TargetImage;
+    cv::flip(CurrentImage, CurrentImage, flipCode);
+    return CurrentImage;
 }
 
 bool ImageProcessor::SaveImage(CString filePath)
 {
-    return cv::imwrite(filePath.GetBuffer(), TargetImage);
+    return cv::imwrite(filePath.GetBuffer(), CurrentImage);
 }
 
 cv::Mat ImageProcessor::GetCurrentImage() const
 {
     return CurrentImage;
-}
-
-cv::Mat ImageProcessor::GetTargetImage() const
-{
-    return TargetImage;
 }
 
 cv::Mat ImageProcessor::GetTempImage() const
@@ -75,8 +68,7 @@ ImageProcessor::operator bool() {
     return !CurrentImage.empty();
 }
 
-std::tuple<HWND,HWND> ImageProcessor::GetHandle() const {
-    auto _1 = (HWND)cvGetWindowHandle("OriginalImageWindow");
-    auto _2 = (HWND)cvGetWindowHandle("ResultImageWindow");
-    return { _1, _2 };
+HWND ImageProcessor::GetHandle() const {
+    auto _1 = (HWND)cvGetWindowHandle("ImageWindow");
+    return _1;
 }

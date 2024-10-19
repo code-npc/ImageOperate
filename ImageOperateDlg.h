@@ -42,5 +42,13 @@ public:
 	afx_msg void OnBnClickedRotate();     // 旋转按钮事件
 	afx_msg void OnBnClickedFlipH();      // 水平翻转
 	afx_msg void OnBnClickedFlipV();      // 垂直翻转
+	afx_msg void OnBnClickedReset();
 	afx_msg void OnPaint();
+	
+	afx_msg void OnBnClickedTogray();
+	afx_msg void OnBnClickedSharpen();
+	afx_msg void OnBnClickedMopi();
+	afx_msg void OnBnClickedContrast();
+	afx_msg void OnBnClickedBrightness();
+	afx_msg void OnBnClickedBlur();
 };
