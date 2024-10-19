@@ -1,52 +1,59 @@
 #include "pch.h"
 #include "ImageProcessor.h"
-
+#include <opencv2/highgui/highgui_c.h>
 
 ImageProcessor::ImageProcessor()
 {
+    cv::namedWindow("OriginalImageWindow");
+    auto _1 = (HWND)cvGetWindowHandle("OriginalImageWindow");
+    ShowWindow(_1, 0);
+    cv::namedWindow("ResultImageWindow");
+    auto _2 = (HWND)cvGetWindowHandle("ResultImageWindow");
+    ShowWindow(_2, 0);
 }
 
 bool ImageProcessor::OpenImage(CString filePath)
 {
     // 使用 OpenCV 加载图像
     CurrentImage = cv::imread(filePath.GetBuffer());
+    TempImage = TargetImage = CurrentImage;
     return !CurrentImage.empty(); // 如果图像读取成功，返回 true
 }
 
-void ImageProcessor::ScaleImage(double scaleFactor)
+cv::Mat ImageProcessor::ScaleImage(double scaleFactor)
 {
-   /* if (!m_currentImage.empty())
+    if (!TempImage.empty())
     {
-        cv::resize(m_currentImage, m_currentImage, cv::Size(), scaleFactor, scaleFactor);
-    }*/
+        cv::resize(TempImage, TargetImage, cv::Size(), scaleFactor, scaleFactor);
+        return TargetImage;
+    }
 }
 
-void ImageProcessor::RotateImage(double angle)
+cv::Mat ImageProcessor::RotateImage(double angle)
 {
-    /*if (!m_currentImage.empty())
+    if (!TempImage.empty())
     {
-        cv::Point2f center(m_currentImage.cols / 2.0, m_currentImage.rows / 2.0);
+        cv::Point2f center(TempImage.cols / 2.0f, TempImage.rows / 2.0f);
         cv::Mat rotMat = cv::getRotationMatrix2D(center, angle, 1.0);
-        cv::warpAffine(m_currentImage, m_currentImage, rotMat, m_currentImage.size());
-    }*/
+        cv::warpAffine(TempImage, TargetImage, rotMat, TempImage.size());
+        return TargetImage;
+    }
 }
 
-void ImageProcessor::FlipImage(bool horizontal, bool vertical)
+cv::Mat ImageProcessor::FlipImage(bool horizontal, bool vertical)
 {
-  /*  int flipCode = 0;
-    if (horizontal && vertical)
-        flipCode = -1;
-    else if (horizontal)
-        flipCode = 1;
-    else if (vertical)
-        flipCode = 0;
+    int flipCode = 0;
+    if (horizontal && vertical) flipCode = -1;
+    else if (horizontal) flipCode = 1;
+    else if (vertical) flipCode = 0;
 
-    cv::flip(m_currentImage, m_currentImage, flipCode);*/
+    cv::flip(TempImage, TargetImage, flipCode);
+    return TargetImage;
 }
 
 bool ImageProcessor::SaveImage(CString filePath)
 {
-    return cv::imwrite(filePath.GetBuffer(), CurrentImage);
+    return cv::imwrite(filePath.GetBuffer(), TargetImage);
 }
 
 cv::Mat ImageProcessor::GetCurrentImage() const
@@ -54,6 +61,22 @@ cv::Mat ImageProcessor::GetCurrentImage() const
     return CurrentImage;
 }
 
+cv::Mat ImageProcessor::GetTargetImage() const
+{
+    return TargetImage;
+}
+
+cv::Mat ImageProcessor::GetTempImage() const
+{
+    return TempImage;
+}
+
 ImageProcessor::operator bool() {
     return !CurrentImage.empty();
+}
+
+std::tuple<HWND,HWND> ImageProcessor::GetHandle() const {
+    auto _1 = (HWND)cvGetWindowHandle("OriginalImageWindow");
+    auto _2 = (HWND)cvGetWindowHandle("ResultImageWindow");
+    return { _1, _2 };
 }

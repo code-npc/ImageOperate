@@ -32,9 +32,8 @@ protected:
 
 protected:
 	ImageProcessor image_processor;   // 图像处理对象
-	CStatic image_ontrol;           // 图片显示控件
 	CString image_path;           // 当前加载的图像路径
-	void display();
+	void Display();
 public:
 	afx_msg void OnBnClickedOpenImage();  // 打开图片按钮事件
 	afx_msg void OnBnClickedSaveImage();  // 保存图片按钮事件

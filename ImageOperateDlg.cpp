@@ -84,6 +84,19 @@ BOOL CImageOperateDlg::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 
 
+
+	auto [origin_handle, result_handle] = image_processor.GetHandle();
+	HWND hParent = ::GetParent(origin_handle);
+	::SetParent(origin_handle, GetDlgItem(IDC_IMAGE1)->m_hWnd);
+	::ShowWindow(hParent, SW_HIDE);
+	::ShowWindow(origin_handle, SW_SHOW);
+
+	hParent = ::GetParent(result_handle);
+	::SetParent(result_handle, GetDlgItem(IDC_IMAGE2)->m_hWnd);
+	::ShowWindow(hParent, SW_HIDE);
+	::ShowWindow(result_handle, SW_SHOW);
+
+
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -126,100 +139,6 @@ BEGIN_MESSAGE_MAP(CImageOperateDlg, CDialogEx)
 	ON_WM_PAINT()
 END_MESSAGE_MAP()
 
-void CImageOperateDlg::display()
-{
-	// 将图像显示在控件上
-		// 获取图像数据
-	cv::Mat image = image_processor.GetCurrentImage();
-
-	// 将图片转换为适合显示的格式（BGR to RGB）
-	// cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
-
-	// 显示图像的代码
-	CImage cimage;
-	cimage.Create(image.cols, image.rows, 24);
-
-	for (int y = 0; y < image.rows; ++y)
-	{
-		uchar* pSrc = image.ptr<uchar>(y);
-		uchar* pDst = (uchar*)cimage.GetPixelAddress(0, y);
-		memcpy(pDst, pSrc, image.cols * 3);
-
-		//for (int i = 0; i < image.cols; i += 3,pDst += 3) {
-		//	std::swap(pDst[i], pDst[i + 2]);
-		//}
-	}
-
-	// 获取静态控件的矩形区域，调整图片大小
-	CRect rect;
-	GetDlgItem(IDC_IMAGE1)->GetClientRect(&rect);
-	////获取控件相对于屏幕的位置
-	GetDlgItem(IDC_IMAGE1)->GetWindowRect(&rect);
-	//转化为对话框上的相对位置
-	ScreenToClient(rect);
-
-
-	// 缩放图片以适应控件大小
-	CDC* pDC = GetDC();
-	HDC hDC = pDC->m_hDC;
-	cimage.StretchBlt(hDC, rect.left, rect.top, rect.Width(), rect.Height(), 0, 0, image.cols, image.rows, SRCCOPY);
-
-	// 释放设备上下文
-	ReleaseDC(pDC);
-}
-
-void CImageOperateDlg::OnBnClickedOpenImage()
-{
-	// 使用 CFileDialog 打开图像
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_FILEMUSTEXIST, _T("图片文件 (*.jpg; *.png; *.bmp; *.webp)|*.jpg; *.png; *.bmp; *.webp||"));
-	if (dlg.DoModal() == IDOK)
-	{
-		image_path = dlg.GetPathName();
-		// 加载图像
-		if (!image_processor.OpenImage(image_path))
-		{
-			AfxMessageBox(_T("无法打开图像文件"));
-			return;
-		}
-		display();
-	}
-}
-
-void CImageOperateDlg::OnBnClickedZoomIn()
-{
-	image_processor.ScaleImage(1.2);  // 放大 1.2 倍
-	// 显示放大后的图像
-	// ...
-}
-
-void CImageOperateDlg::OnBnClickedSaveImage()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void CImageOperateDlg::OnBnClickedZoomOut()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void CImageOperateDlg::OnBnClickedRotate()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void CImageOperateDlg::OnBnClickedFlipH()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-void CImageOperateDlg::OnBnClickedFlipV()
-{
-	// TODO: 在此添加控件通知处理程序代码
-}
-
-
-
-
 void CImageOperateDlg::OnPaint()
 {
 	if (IsIconic())
@@ -238,11 +157,108 @@ void CImageOperateDlg::OnPaint()
 
 		// 绘制图标
 		dc.DrawIcon(x, y, m_hIcon);
-	}
+	} 
 	else
 	{
 		CDialogEx::OnPaint();
 	}
-	if (image_processor)
-		display();
+	if (!image_processor)
+		return;
+	
+	Display();
+	
+		
 }
+
+void CImageOperateDlg::Display()
+{
+	cv::imshow("OriginalImageWindow", image_processor.CurrentImage);
+	cv::imshow("ResultImageWindow", image_processor.TargetImage);
+}
+
+
+
+void CImageOperateDlg::OnBnClickedOpenImage()
+{
+	// 使用 CFileDialog 打开图像
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_FILEMUSTEXIST, _T("图片文件 (*.jpg; *.png; *.bmp; *.webp)|*.jpg; *.png; *.bmp; *.webp||"));
+	if (dlg.DoModal() == IDOK)
+	{
+		image_path = dlg.GetPathName();
+		// 加载图像
+		if (!image_processor.OpenImage(image_path))
+		{
+			AfxMessageBox(_T("无法打开图像文件"));
+			return;
+		}
+		Display();
+	}
+}
+
+void CImageOperateDlg::OnBnClickedSaveImage()
+{
+	// TODO: 保存图片
+	CFileDialog dlg(FALSE, _T(".jpg"), NULL, OFN_OVERWRITEPROMPT, _T("JPEG 文件 (*.jpg)|*.jpg|PNG 文件 (*.png)|*.png|所有文件 (*.*)|*.*||"));
+
+	if (dlg.DoModal() == IDOK)
+	{
+		CString filePath = dlg.GetPathName();
+		if (!image_processor.SaveImage(filePath.GetString()))
+		{
+			AfxMessageBox(_T("保存图片失败"));
+		}
+		else
+		{
+			AfxMessageBox(_T("图片保存成功"));
+		}
+	}
+}
+
+void CImageOperateDlg::OnBnClickedZoomIn()
+{
+	cv::Mat zoomedImage = image_processor.ScaleImage(1.2);  // 放大 1.2 倍
+	// 显示放大后的图像
+	image_processor.TargetImage = zoomedImage;
+	image_processor.TempImage = image_processor.TargetImage;
+	Display();
+	
+}
+
+void CImageOperateDlg::OnBnClickedZoomOut()
+{
+	// TODO: 缩小图片
+	cv::Mat zoomedImage = image_processor.ScaleImage(0.8);
+	image_processor.TargetImage = zoomedImage;
+	image_processor.TempImage = image_processor.TargetImage;
+	Display();
+
+}
+
+void CImageOperateDlg::OnBnClickedRotate()
+{
+	// TODO: 旋转图片
+	cv::Mat rotatedImage = image_processor.RotateImage(45);
+	image_processor.TargetImage = rotatedImage;
+	image_processor.TempImage = image_processor.TargetImage;
+	Display();
+}
+
+void CImageOperateDlg::OnBnClickedFlipH()
+{
+	// TODO: 水平反转图像
+	cv::Mat flippedImage = image_processor.FlipImage(true, false);
+	image_processor.TargetImage = flippedImage;
+	image_processor.TempImage = image_processor.TargetImage;
+	Display();
+}
+
+void CImageOperateDlg::OnBnClickedFlipV()
+{
+	// TODO: 垂直反转图像
+	cv::Mat flippedImage = image_processor.FlipImage(false, true);
+	image_processor.TargetImage = flippedImage;
+	image_processor.TempImage = image_processor.TargetImage;
+	Display();
+}
+
+
