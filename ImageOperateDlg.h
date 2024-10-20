@@ -54,4 +54,7 @@ public:
 	afx_msg void OnBnClickedBrightness();
 	afx_msg void OnBnClickedBlur();
 	
+	afx_msg void OnBnClickedOpenCamera();
+	afx_msg void OnBnClickedTakePicture();
+	afx_msg void OnBnClickedRecordVideo();
 };

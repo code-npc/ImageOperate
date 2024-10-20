@@ -138,6 +138,9 @@ BEGIN_MESSAGE_MAP(CImageOperateDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_CONTRAST, &CImageOperateDlg::OnBnClickedContrast)
 	ON_BN_CLICKED(IDC_BRIGHTNESS, &CImageOperateDlg::OnBnClickedBrightness)
 	ON_BN_CLICKED(IDC_BLUR, &CImageOperateDlg::OnBnClickedBlur)
+	ON_BN_CLICKED(IDC_OPEN_CAMERA, &CImageOperateDlg::OnBnClickedOpenCamera)
+	ON_BN_CLICKED(IDC_TAKE_PICTURE, &CImageOperateDlg::OnBnClickedTakePicture)
+	ON_BN_CLICKED(IDC_RECORD_VIDEO, &CImageOperateDlg::OnBnClickedRecordVideo)
 END_MESSAGE_MAP()
 
 void CImageOperateDlg::OnPaint()
@@ -248,7 +251,6 @@ void CImageOperateDlg::OnBnClickedZoomOut()
 
 void CImageOperateDlg::OnBnClickedRotate()
 {
-	// TODO: 旋转图片
 	image_processor.RotateImage(45);
 	Display();
 }
@@ -274,10 +276,8 @@ void CImageOperateDlg::OnBnClickedReset()
 	Display();
 }
 
-
 void CImageOperateDlg::OnBnClickedTogray()
 {
-	// TODO: 在此添加控件通知处理程序代码
 	cv::cvtColor(image_processor.CurrentImage, image_processor.CurrentImage, cv::COLOR_BGR2GRAY);
 	Display();
 }
@@ -339,4 +339,29 @@ void CImageOperateDlg::OnBnClickedBlur()
 {
 	cv::GaussianBlur(image_processor.CurrentImage, image_processor.CurrentImage, cv::Size(5, 5), 0, 0);
 	Display();
+}
+
+
+void CImageOperateDlg::OnBnClickedOpenCamera()
+{
+	cv::VideoCapture cap(0);
+	while (1)
+	{
+		cv::Mat camera;
+		cap >> camera;//获取当前帧图像
+		cv::imshow("CAMREA_WINDOW", camera);//显示当前帧图像
+		cv::waitKey(8);//延时30秒
+	}
+}
+
+
+void CImageOperateDlg::OnBnClickedTakePicture()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CImageOperateDlg::OnBnClickedRecordVideo()
+{
+	// TODO: 在此添加控件通知处理程序代码
 }
