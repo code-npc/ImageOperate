@@ -269,6 +269,27 @@ void CImageOperateDlg::OnBnClickedTogray()
 void CImageOperateDlg::OnBnClickedSharpen()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	char arith[9] = { 0, -1, 0, -1, 5, -1, 0, -1, 0 };       //使用拉普拉斯算子
+	int rows = image_processor.CurrentImage.rows;        //原图的行
+	int cols = image_processor.CurrentImage.cols * image_processor.CurrentImage.channels();   //原图的列
+	int offsetx = image_processor.CurrentImage.channels();       //像素点的偏移量
+
+
+	for (int i = 1; i < rows - 1; i++)
+	{
+		const uchar* previous = image_processor.CurrentImage.ptr<uchar>(i - 1);
+		const uchar* current = image_processor.CurrentImage.ptr<uchar>(i);
+		const uchar* next = image_processor.CurrentImage.ptr<uchar>(i + 1);
+		uchar* output = image_processor.CurrentImage.ptr<uchar>(i - 1);
+		for (int j = offsetx; j < cols - offsetx; j++)
+		{
+			output[j - offsetx] =
+				cv::saturate_cast<uchar>(previous[j - offsetx] * arith[0] + previous[j] * arith[1] + previous[j + offsetx] * arith[2] +
+					current[j - offsetx] * arith[3] + current[j] * arith[4] + current[j + offsetx] * arith[5] +
+					next[j - offsetx] * arith[6] + next[j] * arith[7] + next[j - offsetx] * arith[8]);
+		}
+	}
+	Display();
 }
 
 
