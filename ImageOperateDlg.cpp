@@ -295,23 +295,31 @@ void CImageOperateDlg::OnBnClickedSharpen()
 
 void CImageOperateDlg::OnBnClickedMopi()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	// 融合原图与模糊图，这里以0.5的比例融合
+	auto alpha = 0.8;
+	cv::GaussianBlur(image_processor.CurrentImage, image_processor.CurrentImage,cv::Size(21, 21), 0);
+	cv::addWeighted(image_processor.TempImage, alpha, image_processor.CurrentImage, 1 - alpha, 0, image_processor.CurrentImage);
+	Display();
 }
 
 
 void CImageOperateDlg::OnBnClickedContrast()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	// 灰度图增强对比度
+	cv::equalizeHist(image_processor.CurrentImage, image_processor.CurrentImage);
+	Display();
 }
 
 
 void CImageOperateDlg::OnBnClickedBrightness()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	image_processor.CurrentImage.convertTo(image_processor.CurrentImage, -1, 1.2, 50);
+	Display();
 }
 
 
 void CImageOperateDlg::OnBnClickedBlur()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	cv::GaussianBlur(image_processor.CurrentImage, image_processor.CurrentImage, cv::Size(5, 5), 0, 0);
+	Display();
 }
