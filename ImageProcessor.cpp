@@ -5,6 +5,7 @@
 ImageProcessor::ImageProcessor()
 {
     cv::namedWindow("ImageWindow");
+    cv::resizeWindow("ImageWindow", 0, 0);
     auto _1 = (HWND)cvGetWindowHandle("ImageWindow");
     ShowWindow(_1, 0);
 }

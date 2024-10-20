@@ -50,6 +50,7 @@ CImageOperateDlg::CImageOperateDlg(CWnd* pParent /*=nullptr*/): CDialogEx(IDD_IM
 void CImageOperateDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_IMAGE, PIC_CONTROL);
 }
 
 BOOL CImageOperateDlg::OnInitDialog()
@@ -172,7 +173,23 @@ void CImageOperateDlg::OnPaint()
 
 void CImageOperateDlg::Display()
 {
+	setPictureColorBGR();
 	cv::imshow("ImageWindow", image_processor.CurrentImage);
+
+}
+
+void CImageOperateDlg::setPictureColorBGR()
+{
+	CPaintDC dc(this); // device context for painting
+	// TODO: 在此处添加消息处理程序代码
+	// 不为绘图消息调用 CDialogEx::OnPaint()
+	CRect rc;
+	CWnd* pWnd = GetDlgItem(IDC_IMAGE);
+	pWnd->GetClientRect(&rc);
+	int py = rc.Height();
+	int px = rc.Width();
+
+	FillRect(PIC_CONTROL.GetDC()->GetSafeHdc(), &rc, CBrush(RGB(255, 255, 255)));
 
 }
 

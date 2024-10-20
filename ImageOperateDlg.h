@@ -32,8 +32,10 @@ protected:
 
 protected:
 	ImageProcessor image_processor;   // 图像处理对象
+	CStatic PIC_CONTROL;
 	CString image_path;           // 当前加载的图像路径
 	void Display();
+	void setPictureColorBGR();
 public:
 	afx_msg void OnBnClickedOpenImage();  // 打开图片按钮事件
 	afx_msg void OnBnClickedSaveImage();  // 保存图片按钮事件
@@ -51,4 +53,5 @@ public:
 	afx_msg void OnBnClickedContrast();
 	afx_msg void OnBnClickedBrightness();
 	afx_msg void OnBnClickedBlur();
+	
 };
