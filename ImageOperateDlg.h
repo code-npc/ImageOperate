@@ -34,8 +34,13 @@ protected:
 	ImageProcessor image_processor;   // 图像处理对象
 	CStatic PIC_CONTROL;
 	CString image_path;           // 当前加载的图像路径
+	CString path = "C:/Users/HP/Pictures/Saved Pictures/";//拍照后图片保存的位置
 	void Display();
+	void Display(bool);
 	void setPictureColorBGR();
+	bool closeFlag = false;//关闭监控标志
+	bool takePhotoFlag = false;//拍照标志
+	bool recordFlag = false;//录像标志
 public:
 	afx_msg void OnBnClickedOpenImage();  // 打开图片按钮事件
 	afx_msg void OnBnClickedSaveImage();  // 保存图片按钮事件
@@ -57,4 +62,6 @@ public:
 	afx_msg void OnBnClickedOpenCamera();
 	afx_msg void OnBnClickedTakePicture();
 	afx_msg void OnBnClickedRecordVideo();
+	afx_msg void OnBnClickedCloseCamrea();
+	afx_msg void OnBnClickedRecordOver();
 };

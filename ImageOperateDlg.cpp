@@ -141,6 +141,8 @@ BEGIN_MESSAGE_MAP(CImageOperateDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_OPEN_CAMERA, &CImageOperateDlg::OnBnClickedOpenCamera)
 	ON_BN_CLICKED(IDC_TAKE_PICTURE, &CImageOperateDlg::OnBnClickedTakePicture)
 	ON_BN_CLICKED(IDC_RECORD_VIDEO, &CImageOperateDlg::OnBnClickedRecordVideo)
+	ON_BN_CLICKED(IDC_CLOSE_CAMREA, &CImageOperateDlg::OnBnClickedCloseCamrea)
+	ON_BN_CLICKED(IDC_RECORD_OVER, &CImageOperateDlg::OnBnClickedRecordOver)
 END_MESSAGE_MAP()
 
 void CImageOperateDlg::OnPaint()
@@ -168,9 +170,7 @@ void CImageOperateDlg::OnPaint()
 	}
 	if (!image_processor)
 		return;
-	
 	Display();
-	
 }
 
 
@@ -178,14 +178,16 @@ void CImageOperateDlg::Display()
 {
 	setPictureColorBGR();
 	cv::imshow("ImageWindow", image_processor.CurrentImage);
+}
 
+void CImageOperateDlg::Display(bool flag)
+{
+	cv::imshow("ImageWindow", image_processor.CurrentImage);
 }
 
 void CImageOperateDlg::setPictureColorBGR()
 {
-	CPaintDC dc(this); // device context for painting
-	// TODO: 在此处添加消息处理程序代码
-	// 不为绘图消息调用 CDialogEx::OnPaint()
+	CPaintDC dc(this);
 	CRect rc;
 	CWnd* pWnd = GetDlgItem(IDC_IMAGE);
 	pWnd->GetClientRect(&rc);
@@ -193,7 +195,6 @@ void CImageOperateDlg::setPictureColorBGR()
 	int px = rc.Width();
 
 	FillRect(PIC_CONTROL.GetDC()->GetSafeHdc(), &rc, CBrush(RGB(255, 255, 255)));
-
 }
 
 
@@ -344,24 +345,84 @@ void CImageOperateDlg::OnBnClickedBlur()
 
 void CImageOperateDlg::OnBnClickedOpenCamera()
 {
+	closeFlag = false;
 	cv::VideoCapture cap(0);
-	while (1)
-	{
-		cv::Mat camera;
-		cap >> camera;//获取当前帧图像
-		cv::imshow("CAMREA_WINDOW", camera);//显示当前帧图像
-		cv::waitKey(8);//延时30秒
+	while (1){
+		cap >> image_processor.CurrentImage;//获取当前帧图像
+
+		Display(1);
+		if (takePhotoFlag){
+			takePhotoFlag = false;
+			//生成并转换照片名称
+			auto m_time = CTime::GetCurrentTime();
+			CString m_strDateTime = path + m_time.Format(_T("%Y%m%d%H%M%S.jpg"));
+			std::string name = (m_strDateTime.GetBuffer());
+			//将Mat数据写入文件
+			bool res = cv::imwrite(name, image_processor.CurrentImage);
+		}
+		if (closeFlag) break;  // 结束监控
+		
+			
+		
+		cv::waitKey(30);
 	}
 }
 
 
 void CImageOperateDlg::OnBnClickedTakePicture()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	takePhotoFlag = true;
 }
-
 
 void CImageOperateDlg::OnBnClickedRecordVideo()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	//开启摄像头
+	cv::VideoCapture capture(0);
+	// 获取视频参数
+	int width = capture.get(cv::CAP_PROP_FRAME_WIDTH);
+	int height = capture.get(cv::CAP_PROP_FRAME_HEIGHT);
+	int count = capture.get(cv::CAP_PROP_FRAME_COUNT);
+	double fps = capture.get(cv::CAP_PROP_FPS);
+
+	//生成录制文件名
+	CTime m_time;
+	m_time = CTime::GetCurrentTime();
+	CString videoNameCString = path + m_time.Format(_T("%Y%m%d%H%M%S.avi")); //格式化日期时间
+	std::string videoName = (videoNameCString.GetBuffer());
+
+	//实例化VideoWriter对象
+	cv::VideoWriter writer(videoName, cv::VideoWriter::fourcc('D', 'I', 'V', 'X'), 30, cv::Size(width, height), true);
+
+	//生成实时监控名
+	cv::Mat frame;
+
+	//循环播放并录制
+	while (true) {
+		//读帧数据，显示数据
+		capture.read(frame);
+		flip(frame, frame, 1);
+		if (frame.empty()) break;
+		//帧写入视频文件
+		writer.write(frame);
+		cv::waitKey(30);
+		if (recordFlag) break;
+	}
+
+	//重置录制状态
+	recordFlag = false;
+	//释放写视频对象
+	writer.release();
+}
+
+void CImageOperateDlg::OnBnClickedCloseCamrea()
+{
+	closeFlag = true;
+	setPictureColorBGR();
+}
+
+
+void CImageOperateDlg::OnBnClickedRecordOver()
+{
+	recordFlag = true;
+	setPictureColorBGR();
 }
