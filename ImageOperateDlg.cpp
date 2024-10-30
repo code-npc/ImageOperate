@@ -51,6 +51,7 @@ void CImageOperateDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_IMAGE, PIC_CONTROL);
+	DDX_Control(pDX, IDC_SLIDER_Brightness, BrightnessSlider);
 }
 
 BOOL CImageOperateDlg::OnInitDialog()
@@ -83,7 +84,11 @@ BOOL CImageOperateDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-
+	//CDialogEx::OnInitDialog();
+	BrightnessSlider.SetRange(-10, 25);//设置滑动范围
+	BrightnessSlider.SetTicFreq(1);//每1个单位画一刻度
+	BrightnessSlider.SetPos(0);//设置滑块初始位置
+	
 
 	auto image_handle = image_processor.GetHandle();
 	HWND hParent = ::GetParent(image_handle);
@@ -143,6 +148,7 @@ BEGIN_MESSAGE_MAP(CImageOperateDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_RECORD_VIDEO, &CImageOperateDlg::OnBnClickedRecordVideo)
 	ON_BN_CLICKED(IDC_CLOSE_CAMREA, &CImageOperateDlg::OnBnClickedCloseCamrea)
 	ON_BN_CLICKED(IDC_RECORD_OVER, &CImageOperateDlg::OnBnClickedRecordOver)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_Brightness, &CImageOperateDlg::OnNMCustomdrawSliderBrightness)
 END_MESSAGE_MAP()
 
 void CImageOperateDlg::OnPaint()
@@ -276,7 +282,6 @@ void CImageOperateDlg::OnBnClickedReset()
 	Display();
 }
 
-
 void CImageOperateDlg::OnBnClickedTogray()
 {
 	image_processor.ToGrayImage();
@@ -304,7 +309,7 @@ void CImageOperateDlg::OnBnClickedContrast()
 
 void CImageOperateDlg::OnBnClickedBrightness()
 {
-	image_processor.BrightnessImage();
+	image_processor.BrightnessImage(10);
 	Display();
 }
 
@@ -392,4 +397,20 @@ void CImageOperateDlg::OnBnClickedRecordOver()
 {
 	recordFlag = true;
 	setPictureColorBGR();
+}
+
+//滑动，调节亮度
+void CImageOperateDlg::OnNMCustomdrawSliderBrightness(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
+	*pResult = 0;
+
+	if (!image_processor)
+		return;
+	int val = BrightnessSlider.GetPos();
+	/*cv::Mat m = cv::Mat::zeros(image_processor.CurrentImage.size(), image_processor.CurrentImage.type());
+	m = cv::Scalar(val, val, val);
+	cv::add(image_processor.CurrentImage, cv::Scalar(val, val, val), image_processor.CurrentImage);*/
+	image_processor.BrightnessImage(val);
+	Display();
 }

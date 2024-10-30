@@ -32,9 +32,13 @@ protected:
 
 protected:
 	ImageProcessor image_processor;   // 图像处理对象
+
 	CStatic PIC_CONTROL;
+	CSliderCtrl BrightnessSlider;
+
 	CString image_path;           // 当前加载的图像路径
 	CString path = "C:/Users/HP/Pictures/Saved Pictures/";//拍照后图片保存的位置
+
 	void Display();
 	void Display(bool);
 	void setPictureColorBGR();
@@ -64,4 +68,6 @@ public:
 	afx_msg void OnBnClickedRecordVideo();
 	afx_msg void OnBnClickedCloseCamrea();
 	afx_msg void OnBnClickedRecordOver();
+	afx_msg void OnNMCustomdrawSliderBrightness(NMHDR* pNMHDR, LRESULT* pResult);
+	
 };

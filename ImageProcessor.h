@@ -21,7 +21,7 @@ public:
     cv::Mat SharpenImage();
     cv::Mat MopiImage();
     cv::Mat ContrastImage();
-    cv::Mat BrightnessImage();
+    cv::Mat BrightnessImage(int val);
     cv::Mat BlurImage();
 
 

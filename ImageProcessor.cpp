@@ -91,9 +91,11 @@ cv::Mat ImageProcessor::ContrastImage()
     return CurrentImage;
 }
 
-cv::Mat ImageProcessor::BrightnessImage()
+cv::Mat ImageProcessor::BrightnessImage(int val)
 {
-    CurrentImage.convertTo(CurrentImage, -1, 1.2, 50);
+    //CurrentImage.convertTo(CurrentImage, -1, 1.2, 50);
+    
+    cv::add(CurrentImage, cv::Scalar(val, val, val), CurrentImage);
     return CurrentImage;
 }
 
