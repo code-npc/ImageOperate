@@ -6,7 +6,7 @@ class ImageProcessor {
 
     cv::Mat CurrentImage;  // 当前图像
     cv::Mat TempImage;  // 用来记录原图
-
+   
 public:
     friend class CImageOperateDlg;
 
@@ -17,7 +17,12 @@ public:
     cv::Mat ScaleImage(double scaleFactor);      // 缩放图像
     cv::Mat RotateImage(double angle);           // 旋转图像
     cv::Mat FlipImage(bool horizontal, bool vertical);  // 翻转图像
-
+    cv::Mat ToGrayImage();
+    cv::Mat SharpenImage();
+    cv::Mat MopiImage();
+    cv::Mat ContrastImage();
+    cv::Mat BrightnessImage();
+    cv::Mat BlurImage();
 
 
     cv::Mat GetCurrentImage() const;

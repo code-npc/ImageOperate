@@ -15,7 +15,6 @@ bool ImageProcessor::OpenImage(CString filePath)
     // 使用 OpenCV 加载图像
     CurrentImage = cv::imread(filePath.GetBuffer());
     TempImage = CurrentImage.clone();
-    CurrentImage.copyTo(TempImage);
     return !CurrentImage.empty(); // 如果图像读取成功，返回 true
 }
 
@@ -50,10 +49,66 @@ cv::Mat ImageProcessor::FlipImage(bool horizontal, bool vertical)
     return CurrentImage;
 }
 
+cv::Mat ImageProcessor::ToGrayImage()
+{
+    cv::cvtColor(CurrentImage, CurrentImage, cv::COLOR_BGR2GRAY);
+    return CurrentImage;
+}
+
+cv::Mat ImageProcessor::SharpenImage()
+{
+    char arith[9] = { 0, -1, 0, -1, 5, -1, 0, -1, 0 };       //使用拉普拉斯算子
+    int rows = CurrentImage.rows;        //原图的行
+    int cols = CurrentImage.cols * CurrentImage.channels();   //原图的列
+    int offsetx = CurrentImage.channels();       //像素点的偏移量
+
+    for (int i = 1; i < rows - 1; i++)
+    {
+        const uchar* previous = CurrentImage.ptr<uchar>(i - 1);
+        const uchar* current = CurrentImage.ptr<uchar>(i);
+        const uchar* next = CurrentImage.ptr<uchar>(i + 1);
+        uchar* output = CurrentImage.ptr<uchar>(i - 1);
+        for (int j = offsetx; j < cols - offsetx; j++)
+        {
+            output[j - offsetx] =
+                cv::saturate_cast<uchar>(previous[j - offsetx] * arith[0] + previous[j] * arith[1] + previous[j + offsetx] * arith[2] +
+                    current[j - offsetx] * arith[3] + current[j] * arith[4] + current[j + offsetx] * arith[5] +
+                    next[j - offsetx] * arith[6] + next[j] * arith[7] + next[j - offsetx] * arith[8]);
+        }
+    }
+    return CurrentImage;
+}
+
+cv::Mat ImageProcessor::MopiImage()
+{
+    cv::GaussianBlur(CurrentImage, CurrentImage, cv::Size(21, 21), 0);
+    return CurrentImage;
+}
+
+cv::Mat ImageProcessor::ContrastImage()
+{
+    cv::equalizeHist(CurrentImage, CurrentImage);
+    return CurrentImage;
+}
+
+cv::Mat ImageProcessor::BrightnessImage()
+{
+    CurrentImage.convertTo(CurrentImage, -1, 1.2, 50);
+    return CurrentImage;
+}
+
+cv::Mat ImageProcessor::BlurImage()
+{
+    cv::GaussianBlur(CurrentImage, CurrentImage, cv::Size(5, 5), 0, 0);
+    return CurrentImage;
+}
+
 bool ImageProcessor::SaveImage(CString filePath)
 {
     return cv::imwrite(filePath.GetBuffer(), CurrentImage);
 }
+
+
 
 cv::Mat ImageProcessor::GetCurrentImage() const
 {

@@ -273,83 +273,54 @@ void CImageOperateDlg::OnBnClickedFlipV()
 void CImageOperateDlg::OnBnClickedReset()
 {
 	image_processor.CurrentImage = image_processor.TempImage.clone();
-	image_processor.TempImage.copyTo(image_processor.CurrentImage);
 	Display();
 }
+
 
 void CImageOperateDlg::OnBnClickedTogray()
 {
-	cv::cvtColor(image_processor.CurrentImage, image_processor.CurrentImage, cv::COLOR_BGR2GRAY);
+	image_processor.ToGrayImage();
 	Display();
 }
-
 
 void CImageOperateDlg::OnBnClickedSharpen()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	char arith[9] = { 0, -1, 0, -1, 5, -1, 0, -1, 0 };       //使用拉普拉斯算子
-	int rows = image_processor.CurrentImage.rows;        //原图的行
-	int cols = image_processor.CurrentImage.cols * image_processor.CurrentImage.channels();   //原图的列
-	int offsetx = image_processor.CurrentImage.channels();       //像素点的偏移量
-
-
-	for (int i = 1; i < rows - 1; i++)
-	{
-		const uchar* previous = image_processor.CurrentImage.ptr<uchar>(i - 1);
-		const uchar* current = image_processor.CurrentImage.ptr<uchar>(i);
-		const uchar* next = image_processor.CurrentImage.ptr<uchar>(i + 1);
-		uchar* output = image_processor.CurrentImage.ptr<uchar>(i - 1);
-		for (int j = offsetx; j < cols - offsetx; j++)
-		{
-			output[j - offsetx] =
-				cv::saturate_cast<uchar>(previous[j - offsetx] * arith[0] + previous[j] * arith[1] + previous[j + offsetx] * arith[2] +
-					current[j - offsetx] * arith[3] + current[j] * arith[4] + current[j + offsetx] * arith[5] +
-					next[j - offsetx] * arith[6] + next[j] * arith[7] + next[j - offsetx] * arith[8]);
-		}
-	}
+	image_processor.SharpenImage();
 	Display();
 }
-
 
 void CImageOperateDlg::OnBnClickedMopi()
 {
-	// 融合原图与模糊图，这里以0.5的比例融合
-	auto alpha = 0.8;
-	cv::GaussianBlur(image_processor.CurrentImage, image_processor.CurrentImage,cv::Size(21, 21), 0);
-	cv::addWeighted(image_processor.TempImage, alpha, image_processor.CurrentImage, 1 - alpha, 0, image_processor.CurrentImage);
+	image_processor.MopiImage();
 	Display();
 }
-
 
 void CImageOperateDlg::OnBnClickedContrast()
 {
 	// 灰度图增强对比度
-	cv::equalizeHist(image_processor.CurrentImage, image_processor.CurrentImage);
+	image_processor.ContrastImage();
 	Display();
 }
-
 
 void CImageOperateDlg::OnBnClickedBrightness()
 {
-	image_processor.CurrentImage.convertTo(image_processor.CurrentImage, -1, 1.2, 50);
+	image_processor.BrightnessImage();
 	Display();
 }
-
 
 void CImageOperateDlg::OnBnClickedBlur()
 {
-	cv::GaussianBlur(image_processor.CurrentImage, image_processor.CurrentImage, cv::Size(5, 5), 0, 0);
+	image_processor.BlurImage();
 	Display();
 }
-
 
 void CImageOperateDlg::OnBnClickedOpenCamera()
 {
 	closeFlag = false;
 	cv::VideoCapture cap(0);
+	setPictureColorBGR();
 	while (1){
 		cap >> image_processor.CurrentImage;//获取当前帧图像
-
 		Display(1);
 		if (takePhotoFlag){
 			takePhotoFlag = false;
@@ -362,12 +333,9 @@ void CImageOperateDlg::OnBnClickedOpenCamera()
 		}
 		if (closeFlag) break;  // 结束监控
 		
-			
-		
 		cv::waitKey(30);
 	}
 }
-
 
 void CImageOperateDlg::OnBnClickedTakePicture()
 {
@@ -419,7 +387,6 @@ void CImageOperateDlg::OnBnClickedCloseCamrea()
 	closeFlag = true;
 	setPictureColorBGR();
 }
-
 
 void CImageOperateDlg::OnBnClickedRecordOver()
 {
