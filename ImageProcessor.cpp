@@ -105,6 +105,34 @@ cv::Mat ImageProcessor::BlurImage()
     return CurrentImage;
 }
 
+static void on_lightness(int b, void* userdata) {
+    cv::Mat image = *((cv::Mat*)userdata);
+    cv::Mat dst = cv::Mat::zeros(image.size(), image.type());
+    cv::Mat m = cv::Mat::zeros(image.size(), image.type());
+    cv::addWeighted(image, 1.0, m, 0, b, dst);
+    cv::imshow("亮度", dst);
+}
+
+static void on_contrast(int b, void* userdata) {
+    cv::Mat image = *((cv::Mat*)userdata);
+    cv::Mat dst = cv::Mat::zeros(image.size(), image.type());
+    cv::Mat m = cv::Mat::zeros(image.size(), image.type());
+    double contrast = b / 100.0;
+    cv::addWeighted(image, contrast, m, 0.0, 0, dst);
+    //展示
+    cv::imshow("亮度", dst);
+}
+
+void ImageProcessor::TrackBar(cv::Mat &CurrentImage)
+{
+    int lightness = 50;
+    int max_value = 100;
+    int contrast_value = 100;
+    cv::createTrackbar("亮度：", "ImageWindow", &lightness, max_value, on_lightness, (void*)(&CurrentImage));
+    cv::createTrackbar("亮度：", "ImageWindow", &contrast_value, 200, on_contrast, (void*)(&CurrentImage));
+    on_lightness(50, &CurrentImage);
+}
+
 bool ImageProcessor::SaveImage(CString filePath)
 {
     return cv::imwrite(filePath.GetBuffer(), CurrentImage);

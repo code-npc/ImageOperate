@@ -7,6 +7,7 @@
 #define IDS_ABOUTBOX                    101
 #define IDD_IMAGEOPERATE_DIALOG         102
 #define IDR_MAINFRAME                   128
+#define IDR_MENU                        131
 #define IDC_BTN_SAVE                    1012
 #define IDC_BTN_OPEN                    1013
 #define IDC_BTN_ZOOM_IN                 1014
@@ -25,21 +26,54 @@
 #define IDC_BTN_FLIP_H2                 1025
 #define IDC_BLUR                        1025
 #define IDC_CONTRAST                    1027
-#define IDC_OPEN_CAMERA                 1032
-#define IDC_TAKE_PICTURE                1033
-#define IDC_RECORD_VIDEO                1034
-#define IDC_CLOSE_CAMREA                1035
-#define IDC_RECORD_OVER                 1036
-#define IDC_SLIDER1                     1038
 #define IDC_SLIDER_Brightness           1038
+#define ID_32771                        32771
+#define ID_32772                        32772
+#define ID_32773                        32773
+#define ID_32774                        32774
+#define ID_32775                        32775
+#define ID_32776                        32776
+#define ID_32777                        32777
+#define ID_32778                        32778
+#define ID_32779                        32779
+#define ID_32780                        32780
+#define ID_32781                        32781
+#define ID_32782                        32782
+#define ID_32783                        32783
+#define ID_32784                        32784
+#define ID_32785                        32785
+#define ID_32786                        32786
+#define ID_OPEN_FILE                    32787
+#define ID_SAVE_FILE                    32788
+#define ID_ZOOM_IN                      32789
+#define ID_ZOOM_OUT                     32790
+#define ID_TO_GRAY                      32791
+#define ID_SHARPEN                      32792
+#define ID_GAUSS_BLUR                   32793
+#define ID_MOPI                         32794
+#define ID_ROTATE                       32795
+#define ID_FLIP_Y                       32796
+#define ID_FLIP_X                       32797
+#define ID_32798                        32798
+#define ID_RESET                        32799
+#define ID_OPEN_CAMERA                  32800
+#define ID_CLOSE_CAMERA                 32801
+#define ID_START_VIDEO                  32802
+#define ID_END_VIDEO                    32803
+#define ID_TAKE_PHOTO                   32804
+#define ID_32805                        32805
+#define ID_32806                        32806
+#define ID_BRIGHTNESS                   32807
+#define ID_CONTRAST                     32808
+#define ID_32809                        32809
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        131
-#define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1039
+#define _APS_NEXT_RESOURCE_VALUE        133
+#define _APS_NEXT_COMMAND_VALUE         32810
+#define _APS_NEXT_CONTROL_VALUE         1041
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

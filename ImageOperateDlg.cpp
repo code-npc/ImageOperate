@@ -57,8 +57,11 @@ void CImageOperateDlg::DoDataExchange(CDataExchange* pDX)
 BOOL CImageOperateDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
-
+	
 	// 将“关于...”菜单项添加到系统菜单中。
+
+	OperateMenu.LoadMenu(IDR_MENU);
+	SetMenu(&OperateMenu);
 
 	// IDM_ABOUTBOX 必须在系统命令范围内。
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
@@ -77,14 +80,13 @@ BOOL CImageOperateDlg::OnInitDialog()
 			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
 		}
 	}
-
+	
 	// 设置此对话框的图标。  当应用程序主窗口不是对话框时，框架将自动
 	//  执行此操作
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-	//CDialogEx::OnInitDialog();
 	BrightnessSlider.SetRange(-10, 25);//设置滑动范围
 	BrightnessSlider.SetTicFreq(1);//每1个单位画一刻度
 	BrightnessSlider.SetPos(0);//设置滑块初始位置
@@ -128,27 +130,28 @@ HCURSOR CImageOperateDlg::OnQueryDragIcon()
 
 
 BEGIN_MESSAGE_MAP(CImageOperateDlg, CDialogEx)
-	ON_BN_CLICKED(IDC_BTN_OPEN, &CImageOperateDlg::OnBnClickedOpenImage)
-	ON_BN_CLICKED(IDC_BTN_SAVE, &CImageOperateDlg::OnBnClickedSaveImage)
-	ON_BN_CLICKED(IDC_BTN_ZOOM_IN, &CImageOperateDlg::OnBnClickedZoomIn)
-	ON_BN_CLICKED(IDC_BTN_ZOOM_OUT, &CImageOperateDlg::OnBnClickedZoomOut)
-	ON_BN_CLICKED(IDC_BTN_ROTATE, &CImageOperateDlg::OnBnClickedRotate)
-	ON_BN_CLICKED(IDC_BTN_FLIP_H, &CImageOperateDlg::OnBnClickedFlipH)
-	ON_BN_CLICKED(IDC_BTN_FLIP_V, &CImageOperateDlg::OnBnClickedFlipV)
-	ON_BN_CLICKED(IDC_RESET, &CImageOperateDlg::OnBnClickedReset)
+	ON_BN_CLICKED(ID_OPEN_FILE, &CImageOperateDlg::OnBnClickedOpenImage)
+	ON_BN_CLICKED(ID_SAVE_FILE, &CImageOperateDlg::OnBnClickedSaveImage)
+	ON_BN_CLICKED(ID_ZOOM_IN, &CImageOperateDlg::OnBnClickedZoomIn)
+	ON_BN_CLICKED(ID_ZOOM_OUT, &CImageOperateDlg::OnBnClickedZoomOut)
+	ON_BN_CLICKED(ID_ROTATE, &CImageOperateDlg::OnBnClickedRotate)
+	ON_BN_CLICKED(ID_FLIP_Y, &CImageOperateDlg::OnBnClickedFlipH)
+	ON_BN_CLICKED(ID_FLIP_X, &CImageOperateDlg::OnBnClickedFlipV)
+	ON_BN_CLICKED(ID_RESET, &CImageOperateDlg::OnBnClickedReset)
 	ON_WM_PAINT()
-	ON_BN_CLICKED(IDC_TOGRAY, &CImageOperateDlg::OnBnClickedTogray)
-	ON_BN_CLICKED(IDC_SHARPEN, &CImageOperateDlg::OnBnClickedSharpen)
-	ON_BN_CLICKED(IDC_MOPI, &CImageOperateDlg::OnBnClickedMopi)
-	ON_BN_CLICKED(IDC_CONTRAST, &CImageOperateDlg::OnBnClickedContrast)
-	ON_BN_CLICKED(IDC_BRIGHTNESS, &CImageOperateDlg::OnBnClickedBrightness)
-	ON_BN_CLICKED(IDC_BLUR, &CImageOperateDlg::OnBnClickedBlur)
-	ON_BN_CLICKED(IDC_OPEN_CAMERA, &CImageOperateDlg::OnBnClickedOpenCamera)
-	ON_BN_CLICKED(IDC_TAKE_PICTURE, &CImageOperateDlg::OnBnClickedTakePicture)
-	ON_BN_CLICKED(IDC_RECORD_VIDEO, &CImageOperateDlg::OnBnClickedRecordVideo)
-	ON_BN_CLICKED(IDC_CLOSE_CAMREA, &CImageOperateDlg::OnBnClickedCloseCamrea)
-	ON_BN_CLICKED(IDC_RECORD_OVER, &CImageOperateDlg::OnBnClickedRecordOver)
+	ON_BN_CLICKED(ID_TO_GRAY, &CImageOperateDlg::OnBnClickedTogray)
+	ON_BN_CLICKED(ID_SHARPEN, &CImageOperateDlg::OnBnClickedSharpen)
+	ON_BN_CLICKED(ID_MOPI, &CImageOperateDlg::OnBnClickedMopi)
+	ON_BN_CLICKED(ID_CONTRAST, &CImageOperateDlg::OnBnClickedContrast)
+	ON_BN_CLICKED(ID_BRIGHTNESS, &CImageOperateDlg::OnBnClickedBrightness)
+	ON_BN_CLICKED(ID_GAUSS_BLUR, &CImageOperateDlg::OnBnClickedBlur)
+	ON_BN_CLICKED(ID_OPEN_CAMERA, &CImageOperateDlg::OnBnClickedOpenCamera)
+	ON_BN_CLICKED(ID_TAKE_PHOTO, &CImageOperateDlg::OnBnClickedTakePicture)
+	ON_BN_CLICKED(ID_START_VIDEO, &CImageOperateDlg::OnBnClickedRecordVideo)
+	ON_BN_CLICKED(ID_CLOSE_CAMERA, &CImageOperateDlg::OnBnClickedCloseCamrea)
+	ON_BN_CLICKED(ID_END_VIDEO, &CImageOperateDlg::OnBnClickedRecordOver)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_Brightness, &CImageOperateDlg::OnNMCustomdrawSliderBrightness)
+	ON_STN_CLICKED(IDC_IMAGE, &CImageOperateDlg::OnStnClickedImage)
 END_MESSAGE_MAP()
 
 void CImageOperateDlg::OnPaint()
@@ -408,9 +411,6 @@ void CImageOperateDlg::OnNMCustomdrawSliderBrightness(NMHDR* pNMHDR, LRESULT* pR
 	if (!image_processor)
 		return;
 	int val = BrightnessSlider.GetPos();
-	/*cv::Mat m = cv::Mat::zeros(image_processor.CurrentImage.size(), image_processor.CurrentImage.type());
-	m = cv::Scalar(val, val, val);
-	cv::add(image_processor.CurrentImage, cv::Scalar(val, val, val), image_processor.CurrentImage);*/
 	image_processor.BrightnessImage(val);
 	Display();
 }

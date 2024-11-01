@@ -23,7 +23,7 @@ public:
     cv::Mat ContrastImage();
     cv::Mat BrightnessImage(int val);
     cv::Mat BlurImage();
-
+    void TrackBar(cv::Mat& CurrentImage);
 
     cv::Mat GetCurrentImage() const;
     cv::Mat GetTempImage() const;

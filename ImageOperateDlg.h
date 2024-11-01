@@ -35,6 +35,7 @@ protected:
 
 	CStatic PIC_CONTROL;
 	CSliderCtrl BrightnessSlider;
+	CMenu OperateMenu;
 
 	CString image_path;           // 当前加载的图像路径
 	CString path = "C:/Users/HP/Pictures/Saved Pictures/";//拍照后图片保存的位置
@@ -69,5 +70,4 @@ public:
 	afx_msg void OnBnClickedCloseCamrea();
 	afx_msg void OnBnClickedRecordOver();
 	afx_msg void OnNMCustomdrawSliderBrightness(NMHDR* pNMHDR, LRESULT* pResult);
-	
 };
