@@ -26,6 +26,8 @@ public:
 // 实现
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
@@ -135,8 +137,8 @@ BEGIN_MESSAGE_MAP(CImageOperateDlg, CDialogEx)
 	ON_BN_CLICKED(ID_ZOOM_IN, &CImageOperateDlg::OnBnClickedZoomIn)
 	ON_BN_CLICKED(ID_ZOOM_OUT, &CImageOperateDlg::OnBnClickedZoomOut)
 	ON_BN_CLICKED(ID_ROTATE, &CImageOperateDlg::OnBnClickedRotate)
-	ON_BN_CLICKED(ID_FLIP_Y, &CImageOperateDlg::OnBnClickedFlipH)
-	ON_BN_CLICKED(ID_FLIP_X, &CImageOperateDlg::OnBnClickedFlipV)
+	ON_BN_CLICKED(ID_FLIP_Y, &CImageOperateDlg::OnBnClickedFlipY)
+	ON_BN_CLICKED(ID_FLIP_X, &CImageOperateDlg::OnBnClickedFlipX)
 	ON_BN_CLICKED(ID_RESET, &CImageOperateDlg::OnBnClickedReset)
 	ON_WM_PAINT()
 	ON_BN_CLICKED(ID_TO_GRAY, &CImageOperateDlg::OnBnClickedTogray)
@@ -144,6 +146,7 @@ BEGIN_MESSAGE_MAP(CImageOperateDlg, CDialogEx)
 	ON_BN_CLICKED(ID_MOPI, &CImageOperateDlg::OnBnClickedMopi)
 	ON_BN_CLICKED(ID_CONTRAST, &CImageOperateDlg::OnBnClickedContrast)
 	ON_BN_CLICKED(ID_BRIGHTNESS, &CImageOperateDlg::OnBnClickedBrightness)
+	ON_BN_CLICKED(ID_SATUATION, &CImageOperateDlg::OnBnClickedSatuation)
 	ON_BN_CLICKED(ID_GAUSS_BLUR, &CImageOperateDlg::OnBnClickedBlur)
 	ON_BN_CLICKED(ID_OPEN_CAMERA, &CImageOperateDlg::OnBnClickedOpenCamera)
 	ON_BN_CLICKED(ID_TAKE_PHOTO, &CImageOperateDlg::OnBnClickedTakePicture)
@@ -151,7 +154,15 @@ BEGIN_MESSAGE_MAP(CImageOperateDlg, CDialogEx)
 	ON_BN_CLICKED(ID_CLOSE_CAMERA, &CImageOperateDlg::OnBnClickedCloseCamrea)
 	ON_BN_CLICKED(ID_END_VIDEO, &CImageOperateDlg::OnBnClickedRecordOver)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_Brightness, &CImageOperateDlg::OnNMCustomdrawSliderBrightness)
-	ON_STN_CLICKED(IDC_IMAGE, &CImageOperateDlg::OnStnClickedImage)
+
+	ON_BN_CLICKED(ID_keyboards, &CImageOperateDlg::Onkeyboards)
+	ON_BN_CLICKED(ID_colorMap, &CImageOperateDlg::Oncolormap)
+	ON_BN_CLICKED(ID_channels, &CImageOperateDlg::Onchannels)
+	ON_BN_CLICKED(ID_colorRange, &CImageOperateDlg::Onrange)
+	ON_BN_CLICKED(ID_simpledraw, &CImageOperateDlg::Onsimpledraw)
+	ON_BN_CLICKED(ID_poly, &CImageOperateDlg::Onpoly)
+	ON_BN_CLICKED(ID_MOUSE_DRAW, &CImageOperateDlg::OnMouseDraw)
+	ON_BN_CLICKED(ID_NORMAL, &CImageOperateDlg::OnNormalization)
 END_MESSAGE_MAP()
 
 void CImageOperateDlg::OnPaint()
@@ -227,7 +238,6 @@ void CImageOperateDlg::OnBnClickedOpenImage()
 
 void CImageOperateDlg::OnBnClickedSaveImage()
 {
-	// TODO: 保存图片
 	CFileDialog dlg(FALSE, _T(".jpg"), NULL, OFN_OVERWRITEPROMPT, _T("JPEG 文件 (*.jpg)|*.jpg|PNG 文件 (*.png)|*.png|所有文件 (*.*)|*.*||"));
 
 	if (dlg.DoModal() == IDOK)
@@ -247,14 +257,12 @@ void CImageOperateDlg::OnBnClickedSaveImage()
 void CImageOperateDlg::OnBnClickedZoomIn()
 {
 	image_processor.ScaleImage(1.2);  // 放大 1.2 倍
-	// 显示放大后的图像
 	Display();
 	
 }
 
 void CImageOperateDlg::OnBnClickedZoomOut()
 {
-	// TODO: 缩小图片
 	image_processor.ScaleImage(0.8);
 	Display();
 }
@@ -265,16 +273,14 @@ void CImageOperateDlg::OnBnClickedRotate()
 	Display();
 }
 
-void CImageOperateDlg::OnBnClickedFlipH()
+void CImageOperateDlg::OnBnClickedFlipY()
 {
-	// TODO: 水平反转图像
 	image_processor.FlipImage(true, false);
 	Display();
 }
 
-void CImageOperateDlg::OnBnClickedFlipV()
+void CImageOperateDlg::OnBnClickedFlipX()
 {
-	// TODO: 垂直反转图像
 	image_processor.FlipImage(false, true);
 	Display();
 }
@@ -316,6 +322,12 @@ void CImageOperateDlg::OnBnClickedBrightness()
 	Display();
 }
 
+void CImageOperateDlg::OnBnClickedSatuation()
+{
+	image_processor.SatuationImage(1.3);
+	Display();
+}
+
 void CImageOperateDlg::OnBnClickedBlur()
 {
 	image_processor.BlurImage();
@@ -328,8 +340,9 @@ void CImageOperateDlg::OnBnClickedOpenCamera()
 	cv::VideoCapture cap(0);
 	setPictureColorBGR();
 	while (1){
-		cap >> image_processor.CurrentImage;//获取当前帧图像
+		cap.read(image_processor.CurrentImage);
 		Display(1);
+		//OnBnClickedTogray();
 		if (takePhotoFlag){
 			takePhotoFlag = false;
 			//生成并转换照片名称
@@ -412,5 +425,140 @@ void CImageOperateDlg::OnNMCustomdrawSliderBrightness(NMHDR* pNMHDR, LRESULT* pR
 		return;
 	int val = BrightnessSlider.GetPos();
 	image_processor.BrightnessImage(val);
+	Display();
+}
+
+
+//Demo实现
+void CImageOperateDlg::Onkeyboards()
+{
+	cv::imshow("输出窗口", image_processor.CurrentImage);
+	int key = cv::waitKey(0);
+	while (true) {
+		int key = cv::waitKey(1000);
+		if (key == 49) {
+			image_processor.ToGrayImage();
+			cv::imshow("输出窗口", image_processor.CurrentImage);
+		}
+		if (key == 50) {
+			image_processor.BlurImage();
+			cv::imshow("输出窗口", image_processor.CurrentImage);
+		}
+		if (key == 27) {
+			break;
+		}
+		
+	}
+	CString strMessage;
+	strMessage.Format(_T("这是一条格式化的消息框输出：%d"), key);
+	AfxMessageBox(strMessage);
+}
+
+void CImageOperateDlg::Oncolormap()
+{
+	int colormap[] = {
+	cv::COLORMAP_AUTUMN,
+	cv::COLORMAP_BONE,
+	cv::COLORMAP_JET,
+	cv::COLORMAP_WINTER,
+	cv::COLORMAP_RAINBOW,
+	cv::COLORMAP_OCEAN,
+	cv::COLORMAP_SUMMER,
+	cv::COLORMAP_SPRING,
+	cv::COLORMAP_COOL,
+	cv::COLORMAP_HSV,
+	cv::COLORMAP_PINK,
+	cv::COLORMAP_HOT,
+	cv::COLORMAP_PARULA,
+	cv::COLORMAP_MAGMA,
+	cv::COLORMAP_INFERNO,
+	cv::COLORMAP_PLASMA,
+	cv::COLORMAP_VIRIDIS,
+	cv::COLORMAP_CIVIDIS,
+	cv::COLORMAP_TWILIGHT,
+	cv::COLORMAP_TWILIGHT_SHIFTED
+	};
+	int index = 2;
+	cv::applyColorMap(image_processor.TempImage, image_processor.CurrentImage, colormap[index]);
+	Display();
+}
+
+void CImageOperateDlg::Onchannels()
+{
+	cv::Mat image = image_processor.CurrentImage;
+	std::vector<cv::Mat> vec;
+	cv::split(image_processor.CurrentImage, vec);
+	//cv::imshow("通道1", vec[0]);
+	//cv::imshow("通道2", vec[1]);
+	//cv::imshow("通道3", vec[2]);
+
+	vec[0] = 0;
+	vec[1] = 0;
+	cv::merge(vec, image);
+	Display();
+}
+
+void CImageOperateDlg::Onrange()
+{
+	cv::Mat hsv;
+	cv::Mat mask;
+	cv::Mat image = image_processor.CurrentImage;
+	cv::cvtColor(image, hsv, cv::COLOR_BGR2HSV);
+	cv::inRange(hsv, cv::Scalar(35, 43, 46), cv::Scalar(77, 255, 255), mask);
+	//cv::imshow("色彩空间转换", mask);
+	cv::Mat redback = cv::Mat::zeros(image.size(), image.type());
+	redback = cv::Scalar(40, 40, 200);
+	//cv::imshow("红色背景", redback);
+	cv::bitwise_not(mask, mask);
+	image.copyTo(redback, mask);
+	redback.copyTo(image);
+	Display();
+}
+
+void CImageOperateDlg::Onsimpledraw()
+{
+	cv::Mat image = image_processor.CurrentImage;
+
+	cv::Rect rect(100,100,300,300);
+	cv::rectangle(image, rect, cv::Scalar(255, 0, 0), 2);
+
+	cv::circle(image, cv::Point(200, 200), 40, cv::Scalar(0, 255, 0), 2);
+	cv::line(image, cv::Point(200, 200), cv::Point(500, 500), cv::Scalar(0, 0, 255), 2);
+	
+	cv::RotatedRect rrt;
+	rrt.center = cv::Point(300, 400);
+	rrt.size = cv::Size(100, 200);
+	rrt.angle = 90;
+	cv::ellipse(image, rrt, cv::Scalar(183, 42, 90), 2);
+	Display();
+}
+
+void CImageOperateDlg::Onpoly()
+{
+	cv::Mat image = image_processor.CurrentImage;
+	std::vector<cv::Point> points;
+	points.push_back(cv::Point(100,100));
+	points.push_back(cv::Point(350,100));
+	points.push_back(cv::Point(450,280));
+	points.push_back(cv::Point(320,450));
+	points.push_back(cv::Point(80,400));
+	cv::polylines(image, points, true, cv::Scalar(0, 255, 0), 2);
+	cv::fillPoly(image, points, cv::Scalar(255, 0, 0));
+
+	/*std::vector<std::vector<cv::Point>> contours;
+	contours.push_back(points);
+	cv::drawContours(image, contours, 0, cv::Scalar(255, 0, 0), -1);*/
+	Display();
+}
+
+void CImageOperateDlg::OnMouseDraw()
+{
+	image_processor.MouseDraw();
+	Display();
+}
+
+void CImageOperateDlg::OnNormalization()
+{
+	image_processor.NormalImage();
 	Display();
 }

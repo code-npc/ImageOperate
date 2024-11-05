@@ -52,8 +52,8 @@ public:
 	afx_msg void OnBnClickedZoomIn();     // 缩放按钮事件
 	afx_msg void OnBnClickedZoomOut();
 	afx_msg void OnBnClickedRotate();     // 旋转按钮事件
-	afx_msg void OnBnClickedFlipH();      // 水平翻转
-	afx_msg void OnBnClickedFlipV();      // 垂直翻转
+	afx_msg void OnBnClickedFlipY();      // 水平翻转
+	afx_msg void OnBnClickedFlipX();      // 垂直翻转
 	afx_msg void OnBnClickedReset();
 	afx_msg void OnPaint();
 	
@@ -62,6 +62,7 @@ public:
 	afx_msg void OnBnClickedMopi();
 	afx_msg void OnBnClickedContrast();
 	afx_msg void OnBnClickedBrightness();
+	afx_msg void OnBnClickedSatuation();
 	afx_msg void OnBnClickedBlur();
 	
 	afx_msg void OnBnClickedOpenCamera();
@@ -70,4 +71,13 @@ public:
 	afx_msg void OnBnClickedCloseCamrea();
 	afx_msg void OnBnClickedRecordOver();
 	afx_msg void OnNMCustomdrawSliderBrightness(NMHDR* pNMHDR, LRESULT* pResult);
+
+	afx_msg void Onkeyboards();
+	afx_msg void Oncolormap();
+	afx_msg void Onchannels();
+	afx_msg void Onrange();
+	afx_msg void Onsimpledraw();
+	afx_msg void Onpoly();
+	afx_msg void OnMouseDraw();
+	afx_msg void OnNormalization();
 };

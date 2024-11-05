@@ -66,13 +66,33 @@
 #define ID_BRIGHTNESS                   32807
 #define ID_CONTRAST                     32808
 #define ID_32809                        32809
+#define ID_32810                        32810
+#define ID_keyboards                    32811
+#define ID_32812                        32812
+#define ID_colorMap                     32813
+#define ID_32814                        32814
+#define ID_SATURATION                   32815
+#define ID_SATUATION                    32816
+#define ID_32817                        32817
+#define ID_chanles                      32818
+#define ID_channels                     32819
+#define ID_32820                        32820
+#define ID_colorRange                   32821
+#define ID_32822                        32822
+#define ID_simpledraw                   32823
+#define ID_32824                        32824
+#define ID_poly                         32825
+#define ID_32826                        32826
+#define ID_MOUSE_DRAW                   32827
+#define ID_32828                        32828
+#define ID_NORMAL                       32829
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        133
-#define _APS_NEXT_COMMAND_VALUE         32810
+#define _APS_NEXT_COMMAND_VALUE         32830
 #define _APS_NEXT_CONTROL_VALUE         1041
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

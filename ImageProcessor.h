@@ -22,15 +22,18 @@ public:
     cv::Mat MopiImage();
     cv::Mat ContrastImage();
     cv::Mat BrightnessImage(int val);
+    cv::Mat SatuationImage(double val);
     cv::Mat BlurImage();
-    void TrackBar(cv::Mat& CurrentImage);
 
+    static void on_Mouse(int event, int x, int y, int flag, void* userdata);
+    void MouseDraw();
+    void NormalImage();
     cv::Mat GetCurrentImage() const;
     cv::Mat GetTempImage() const;
 
     HWND GetHandle() const ;
 
     operator bool();
-    
+
 };
 
