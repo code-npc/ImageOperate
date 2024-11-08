@@ -28,6 +28,7 @@ public:
     static void on_Mouse(int event, int x, int y, int flag, void* userdata);
     void MouseDraw();
     void NormalImage();
+    void DrawHist();
     cv::Mat GetCurrentImage() const;
     cv::Mat GetTempImage() const;
 

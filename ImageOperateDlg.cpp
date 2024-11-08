@@ -163,6 +163,7 @@ BEGIN_MESSAGE_MAP(CImageOperateDlg, CDialogEx)
 	ON_BN_CLICKED(ID_poly, &CImageOperateDlg::Onpoly)
 	ON_BN_CLICKED(ID_MOUSE_DRAW, &CImageOperateDlg::OnMouseDraw)
 	ON_BN_CLICKED(ID_NORMAL, &CImageOperateDlg::OnNormalization)
+	ON_BN_CLICKED(ID_DRAW_HIST, &CImageOperateDlg::OnDrawHist)
 END_MESSAGE_MAP()
 
 void CImageOperateDlg::OnPaint()
@@ -305,7 +306,7 @@ void CImageOperateDlg::OnBnClickedSharpen()
 
 void CImageOperateDlg::OnBnClickedMopi()
 {
-	image_processor.MopiImage();
+	image_processor.CurrentImage = image_processor.MopiImage();
 	Display();
 }
 
@@ -560,5 +561,12 @@ void CImageOperateDlg::OnMouseDraw()
 void CImageOperateDlg::OnNormalization()
 {
 	image_processor.NormalImage();
+	Display();
+}
+
+
+void CImageOperateDlg::OnDrawHist()
+{
+	image_processor.DrawHist();
 	Display();
 }

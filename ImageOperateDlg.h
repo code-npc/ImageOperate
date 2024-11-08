@@ -80,4 +80,5 @@ public:
 	afx_msg void Onpoly();
 	afx_msg void OnMouseDraw();
 	afx_msg void OnNormalization();
+	afx_msg void OnDrawHist();
 };

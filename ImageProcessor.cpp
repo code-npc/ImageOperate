@@ -94,16 +94,25 @@ cv::Mat ImageProcessor::SharpenImage()
 cv::Mat ImageProcessor::MopiImage()
 {
     if (!CurrentImage.empty()) {
-        cv::GaussianBlur(CurrentImage, CurrentImage, cv::Size(21, 21), 0);
-        return CurrentImage;
+        //cv::GaussianBlur(CurrentImage, CurrentImage, cv::Size(21, 21), 0);
+        cv::Mat dst;
+        cv::bilateralFilter(CurrentImage, dst, 0, 50, 10);
+        return dst;
     }
 }
 
 cv::Mat ImageProcessor::ContrastImage()
 {
     if (!CurrentImage.empty()) {
-        cv::convertScaleAbs(CurrentImage, CurrentImage, 1.2, 1);
-        //cv::equalizeHist(CurrentImage, CurrentImage);
+        /*cv::convertScaleAbs(CurrentImage, CurrentImage, 1.2, 1);*/
+
+        cv::cvtColor(CurrentImage, CurrentImage, cv::COLOR_BGR2HSV);
+        std::vector<cv::Mat> vec;
+        cv::split(CurrentImage, vec);
+        //均衡化 vec[2] 亮度通道
+        cv::equalizeHist(vec[2], vec[2]);
+        cv::merge(vec, CurrentImage);
+        cv::cvtColor(CurrentImage, CurrentImage, cv::COLOR_HSV2BGR);
         return CurrentImage;
     }
 }
@@ -195,6 +204,41 @@ void ImageProcessor::NormalImage()
         //归一化
         cv::normalize(CurrentImage, CurrentImage, 1.0, 0, cv::NORM_MINMAX);
     }
+}
+
+void ImageProcessor::DrawHist()
+{
+    std::vector<cv::Mat> bgr_vec;
+    cv::split(CurrentImage, bgr_vec);
+    const int channels[1] = { 0 };
+    const int bins[1] = { 256 };
+    float hranges[2] = { 0,255 };
+    const float* ranges[1] = { hranges };
+    cv::Mat b_hist;
+    cv::Mat g_hist;
+    cv::Mat r_hist;
+    //计算b，g，r通道的直方图
+    cv::calcHist(&bgr_vec[0], 1, 0, cv::Mat(), b_hist, 1, bins, ranges);
+    cv::calcHist(&bgr_vec[1], 1, 0, cv::Mat(), g_hist, 1, bins, ranges);
+    cv::calcHist(&bgr_vec[2], 1, 0, cv::Mat(), r_hist, 1, bins, ranges);
+
+    // 显示直方图
+    int hist_w = 512;
+    int hist_h = 420;
+    int bin_w = cvRound((double)hist_w / bins[0]);
+    cv::Mat histImage = cv::Mat::zeros(hist_h, hist_w, CV_8UC3);
+    cv::normalize(b_hist, b_hist, 0, histImage.rows, cv::NORM_MINMAX, -1, cv::Mat());
+    cv::normalize(g_hist, g_hist, 0, histImage.rows, cv::NORM_MINMAX, -1, cv::Mat());
+    cv::normalize(r_hist, r_hist, 0, histImage.rows, cv::NORM_MINMAX, -1, cv::Mat());
+    for (int i = 1; i < bins[0]; i++) {
+        cv::line(histImage, cv::Point(bin_w * (i - 1), hist_h - cvRound(b_hist.at<float>(i - 1))),
+            cv::Point(bin_w * (i), hist_h - cvRound(b_hist.at<float>(i))), cv::Scalar(255, 0, 0), 2);
+        cv::line(histImage, cv::Point(bin_w * (i - 1), hist_h - cvRound(g_hist.at<float>(i - 1))),
+            cv::Point(bin_w * (i), hist_h - cvRound(g_hist.at<float>(i))), cv::Scalar(0, 255, 0), 2);
+        cv::line(histImage, cv::Point(bin_w * (i - 1), hist_h - cvRound(r_hist.at<float>(i - 1))),
+            cv::Point(bin_w * (i), hist_h - cvRound(r_hist.at<float>(i))), cv::Scalar(0, 0, 255), 2);
+    }
+    cv::imshow("直方图", histImage);
 }
 
 bool ImageProcessor::SaveImage(CString filePath)
